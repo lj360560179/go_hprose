@@ -12,18 +12,20 @@ import (
 func main() {
 
 	server := rpc.NewTCPServer("tcp4://127.0.0.1:8888/")
-	server.Publish("push", 0, 0)
+	server.Publish("push", 10000, 0)
 	server.Event = event{}
 	//开协程监听tcp
 	go server.Start()
 
 	//http路由
 	router := gin.Default()
+	//发送推送消息
 	router.GET("/push", func(context *gin.Context) {
 		server.Broadcast("push", time.Now().String(), func(sended []string) {
 			fmt.Println(sended)
 		})
 	})
+	//获取在线用户
 	router.GET("/idList", func(context *gin.Context) {
 		sendResponse(server.IDList("push"),context)
 	})
