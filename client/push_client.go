@@ -1,20 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"github.com/hprose/hprose-golang/rpc"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 type HelloService struct {
-	Hello func(string) (string, error)
+	Hello func() ([]string, error)
 }
 
 func main() {
 
+	var helloService *HelloService
+	client := rpc.NewClient("tcp://127.0.0.1:8888/")
+	client.UseService(&helloService)
+
+
 	router := gin.Default()
 	router.GET("/push", func(context *gin.Context) {
-
+		result ,_:=helloService.Hello()
+		sendResponse(result,context)
 	})
 	router.GET("/users", func(context *gin.Context) {
 
@@ -22,15 +27,8 @@ func main() {
 	router.Run(":8000")
 
 
-	client := rpc.NewClient("tcp://127.0.0.1:8888/")
-	client.Subscribe("ip", "", nil, func(ip string) {
-		fmt.Println(ip)
-	})
-	var helloService *HelloService
-	client.UseService(&helloService)
-	for i := 0; i < 10; i++ {
-		fmt.Println(helloService.Hello("world"))
-	}
+
+
 }
 func sendResponse(data interface{},c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{
