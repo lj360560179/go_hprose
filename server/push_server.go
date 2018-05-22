@@ -2,32 +2,30 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"github.com/hprose/hprose-golang/rpc"
+	"time"
 )
-
-type event struct{}
-
-func (event) OnSubscribe(topic string, id string, service rpc.Service) {
-	fmt.Println("client " + id + " subscribe topic: " + topic)
-}
-
-func (event) OnUnsubscribe(topic string, id string, service rpc.Service) {
-	fmt.Println("client " + id + " unsubscribe topic: " + topic)
+func hello(name string, context *rpc.SocketContext) []string {
+	ids :=make([]string,0)
+	context.Clients().Broadcast("time", time.Now().String(), func(sended []string) {
+		ids=append(ids,sended...)
+	})
+	return ids
 }
 
 func main() {
 	server := rpc.NewTCPServer("tcp4://127.0.0.1:8888/")
 	server.Publish("time", 0, 0)
 	server.Event = event{}
-	var timer *time.Timer
-	timer = time.AfterFunc(1*time.Second, func() {
-		server.Broadcast("time", time.Now().String(), func(sended []string) {
-			if len(sended) > 0 {
-				fmt.Println(sended)
-			}
-		})
-		timer.Reset(1 * time.Second)
-	})
+	server.AddFunction("hello", hello)
 	server.Start()
+}
+
+type event struct{}
+
+func (event) OnSubscribe(topic string, id string, service rpc.Service) {
+	fmt.Println("客户 " + id + " 订阅了 topic: " + topic)
+}
+func (event) OnUnsubscribe(topic string, id string, service rpc.Service) {
+	fmt.Println("客户 " + id + " 离线: " + topic)
 }
