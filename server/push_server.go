@@ -7,10 +7,14 @@ import (
 )
 func push(context *rpc.SocketContext) []string {
 	ids :=make([]string,10)
-	context.Clients().Broadcast("time", time.Now().String(), func(sended []string) {
+	context.Clients().Broadcast("push", time.Now().String(), func(sended []string) {
 		ids=append(ids,sended...)
 	})
 	return ids
+}
+
+func idList(context *rpc.SocketContext)  []string{
+	return context.Clients().IDList("push")
 }
 
 func main() {
@@ -18,6 +22,7 @@ func main() {
 	server.Publish("time", 0, 0)
 	server.Event = event{}
 	server.AddFunction("push", push)
+	server.AddFunction("idList", idList)
 	server.Start()
 }
 

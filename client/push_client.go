@@ -5,30 +5,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
-type HelloService struct {
-	Hello func() ([]string, error)
+type PushService struct {
+	Push func() ([]string, error)
+	IdList func() ([]string,error)
 }
 
 func main() {
 
-	var helloService *HelloService
+	var pushService *PushService
 	client := rpc.NewClient("tcp://127.0.0.1:8888/")
-	client.UseService(&helloService)
-
+	client.UseService(&pushService)
 
 	router := gin.Default()
 	router.GET("/push", func(context *gin.Context) {
-		result ,_:=helloService.Hello()
+		result ,_:=pushService.Push()
 		sendResponse(result,context)
 	})
 	router.GET("/users", func(context *gin.Context) {
-
+		result ,_:=pushService.IdList()
+		sendResponse(result,context)
 	})
 	router.Run(":8000")
-
-
-
-
 }
 func sendResponse(data interface{},c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{
