@@ -2,34 +2,21 @@ package main
 
 import (
 	"github.com/hprose/hprose-golang/rpc"
-	"github.com/gin-gonic/gin"
-	"net/http"
+	"fmt"
 )
-type PushService struct {
-	Push func() ([]string, error)
-	IdList func() ([]string,error)
+type event struct {}
+
+func (e *event) OnError(name string, err error) {
+	fmt.Printf("name: %s, err: %s\n", name, err.Error())
 }
 
 func main() {
-
-	var pushService *PushService
-	client := rpc.NewClient("tcp://127.0.0.1:8888/")
-	client.UseService(&pushService)
-
-	router := gin.Default()
-	router.GET("/push", func(context *gin.Context) {
-		result ,_:=pushService.Push()
-		sendResponse(result,context)
+	client := rpc.NewTCPClient("tcp4://127.0.0.1:8888/")
+	client.SetEvent(&event{})
+	done := make(chan struct{})
+	client.Subscribe("push", "360560179-AND", nil, func(ip string) {
+		done <- struct{}{}
+		fmt.Println(ip)
 	})
-	router.GET("/users", func(context *gin.Context) {
-		result ,_:=pushService.IdList()
-		sendResponse(result,context)
-	})
-	router.Run(":8000")
-}
-func sendResponse(data interface{},c *gin.Context){
-	c.JSON(http.StatusOK, gin.H{
-		"state": true,
-		"data":data,
-	})
+	<-done
 }
