@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+	"strings"
 )
 
 
@@ -27,7 +28,12 @@ func main() {
 	})
 	//获取在线用户
 	router.GET("/idList", func(context *gin.Context) {
-		sendResponse(server.IDList("push"),context)
+		users := server.IDList("push")
+		result := make([]string ,0)
+		for _,v:= range users{
+			result = append(result,strings.Split(v,"-")[0])
+		}
+		sendResponse(result,context)
 	})
     router.Run("127.0.0.1:8000")
 }
