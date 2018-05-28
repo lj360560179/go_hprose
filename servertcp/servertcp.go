@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	server := rpc.NewTCPServer("tcp4://127.0.0.1:8888/")
+	server := rpc.NewTCPServer("tcp4://172.16.9.254:8888/")
 	server.Publish("push", 10000, 0)
 	server.Event = event{}
 	//开协程监听tcp
