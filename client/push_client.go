@@ -11,10 +11,10 @@ func (e *event) OnError(name string, err error) {
 }
 
 func main() {
-	client := rpc.NewTCPClient("tcp4://127.0.0.1:8888/")
+	client := rpc.NewTCPClient("tcp4://127.0.0.1:10001/")
 	client.SetEvent(&event{})
 	done := make(chan struct{})
-	client.Subscribe("push", "704c95471f834d3488c76bb2b9bd63b61-AND", nil, func(ip string) {
+	client.Subscribe("MEDICINE", "80da3f413d234105a67ea05bb522658a-AND", nil, func(ip string) {
 		done <- struct{}{}
 		fmt.Println(ip)
 	})
