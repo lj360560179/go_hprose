@@ -3,36 +3,32 @@ package main
 
 import (
 	"github.com/myzhan/boomer"
-	"time"
+	"github.com/hprose/hprose-golang/rpc"
+	"github.com/satori/go.uuid"
 )
 
 
 
-func foo(){
+func tcpc(){
 	start := boomer.Now()
-	time.Sleep(100 * time.Millisecond)
-	elapsed := boomer.Now() - start
-	boomer.Events.Publish("request_success", "http", "foo", elapsed, int64(10))
+	client := rpc.NewTCPClient("tcp4://172.16.1.102:10001/")
+	a ,_:= uuid.NewV1()
+	client.Subscribe("OTHER", a.String(), nil, func(ip string) {
+		elapsed := boomer.Now() - start
+		if(ip == "SUCCESS"){
+			boomer.Events.Publish("request_success", "tcp", "tcp", elapsed, int64(10))
+		}
+	})
 }
 
-func bar(){
-	start := boomer.Now()
-	time.Sleep(100 * time.Millisecond)
-	elapsed := boomer.Now() - start
-	boomer.Events.Publish("request_failure", "udp", "bar", elapsed, "udp error")
-}
 
 func main(){
 	task1 := &boomer.Task{
-		Name: "foo",
+		Name: "tcpc",
 		Weight: 10,
-		Fn: foo,
+		Fn: tcpc,
 	}
-	task2 := &boomer.Task{
-		Name: "bar",
-		Weight: 20,
-		Fn: bar,
-	}
-	boomer.Run(task1, task2)
+
+	boomer.Run(task1)
 
 }
