@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"github.com/satori/go.uuid"
+	"os"
 )
 type event struct {}
 
@@ -12,7 +13,7 @@ func (e *event) OnError(name string, err error) {
 	fmt.Printf("name: %s, err: %s\n", name, err.Error())
 }
 
-var result = make(chan interface{}, 1)
+var result = make(chan string, 1)
 
 func main() {
 	for i:=0;i<10000;i++ {
@@ -27,9 +28,17 @@ func main() {
 		}()
 	}
 
+	fileName := "./a.log"
+	dstFile,err := os.Create(fileName)
+	if err!=nil{
+		fmt.Println(err.Error())
+		return
+	}
+	defer dstFile.Close()
+
 	for v:= range result{
 		if v != "SUCCESS"{
-			fmt.Println(v)
+			dstFile.WriteString(v+"\n")
 		}
 	}
 
