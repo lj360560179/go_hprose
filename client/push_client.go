@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/hprose/hprose-golang/rpc"
 	"fmt"
+	"time"
+	"github.com/satori/go.uuid"
 )
 type event struct {}
 
@@ -11,12 +13,20 @@ func (e *event) OnError(name string, err error) {
 }
 
 func main() {
-	client := rpc.NewTCPClient("tcp4://127.0.0.1:10001/")
-	client.SetEvent(&event{})
-	done := make(chan struct{})
-	client.Subscribe("MEDICINE", "80da3f413d234105a67ea05bb522658a-AND", nil, func(ip string) {
-		done <- struct{}{}
-		fmt.Println(ip)
-	})
-	<-done
+	count:=0
+	for i:=0;i<20000;i++ {
+		go func() {
+			a ,_:= uuid.NewV1()
+			fmt.Println(a)
+			client := rpc.NewTCPClient("tcp4://172.16.1.102:10001/")
+			//client := rpc.NewTCPClient("tcp4://127.0.0.1:8888/")
+			client.SetEvent(&event{})
+			client.Subscribe("OTHER", a.String(), nil, func(ip string) {
+				count++
+				fmt.Println("%s--:%d",ip,count)
+			})
+		}()
+	}
+
+	time.Sleep(time.Second*3000000)
 }

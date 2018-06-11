@@ -13,7 +13,7 @@ import (
 func main() {
 
 	server := rpc.NewTCPServer("tcp4://127.0.0.1:8888/")
-	server.Publish("push", 10000, 0)
+	server.Publish("OTHER", 10000, 0)
 	server.Event = event{}
 	//开协程监听tcp
 	go server.Start()
@@ -22,13 +22,13 @@ func main() {
 	router := gin.Default()
 	//发送推送消息
 	router.GET("/push", func(context *gin.Context) {
-		server.Broadcast("push", time.Now().String(), func(sended []string) {
+		server.Broadcast("OTHER", time.Now().String(), func(sended []string) {
 			fmt.Println(sended)
 		})
 	})
 	//获取在线用户
 	router.GET("/idList", func(context *gin.Context) {
-		users := server.IDList("push")
+		users := server.IDList("OTHER")
 		result := make([]string ,0)
 		for _,v:= range users{
 			result = append(result,strings.Split(v,"-")[0])
