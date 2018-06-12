@@ -11,7 +11,7 @@ import (
 
 func tcpc(){
 	start := boomer.Now()
-	client := rpc.NewTCPClient("tcp4://172.16.1.102:10001/")
+	client := rpc.NewTCPClient("tcp4://127.0.0.1:10001/")
 	a ,_:= uuid.NewV1()
 	client.Subscribe("OTHER", a.String(), nil, func(ip string) {
 		elapsed := boomer.Now() - start
