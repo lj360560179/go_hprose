@@ -19,9 +19,8 @@ func main() {
 	for i:=0;i<500;i++ {
 		go func() {
 			a ,_:= uuid.NewV1()
-			//client := rpc.NewTCPClient("tcp4://tog-demo.ybveg.com:10003/")
-			//client := rpc.NewTCPClient("tcp4://127.0.0.1:9090")
-			client := rpc.NewTCPClient("tcp4://tog-demo.ybveg.com:10003/")
+			client := rpc.NewTCPClient("tcp4://127.0.0.1:9090")
+
 			client.SetEvent(&event{})
 			client.Subscribe("OTHER", a.String(), nil, func(ip string) {
 				result<-ip
