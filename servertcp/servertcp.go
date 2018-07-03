@@ -13,7 +13,7 @@ import (
 func main() {
 
 	server := rpc.NewTCPServer("tcp4://127.0.0.1:8888/")
-	server.Publish("OTHER", 10000, 0)
+	server.Publish("OTHER1", 10000, 0)
 	server.Event = event{}
 	//开协程监听tcp
 	go server.Start()
